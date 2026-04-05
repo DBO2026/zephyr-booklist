@@ -1,0 +1,648 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Booklist Reader — Zephyr Education</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=DM+Sans:wght@300;400;500;600&family=DM+Mono:wght@400;500&display=swap');
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --zephyr: #1a6b4a;
+    --zephyr-light: #e8f4ef;
+    --zephyr-mid: #2d8f63;
+    --text: #1a1a1a;
+    --text-muted: #6b7280;
+    --text-light: #9ca3af;
+    --border: #e5e7eb;
+    --border-strong: #d1d5db;
+    --bg: #f9fafb;
+    --white: #ffffff;
+    --texts-color: #1d4ed8;
+    --texts-bg: #eff6ff;
+    --stat-color: #059669;
+    --stat-bg: #ecfdf5;
+    --excl-color: #92400e;
+    --excl-bg: #fffbeb;
+    --danger: #dc2626;
+    --radius: 10px;
+    --radius-sm: 6px;
+  }
+
+  body {
+    font-family: 'DM Sans', system-ui, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    min-height: 100vh;
+    font-size: 15px;
+    line-height: 1.6;
+  }
+
+  header {
+    background: var(--white);
+    border-bottom: 1px solid var(--border);
+    padding: 0 2rem;
+    height: 60px;
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+  }
+
+  .logo-mark {
+    width: 32px;
+    height: 32px;
+    background: var(--zephyr);
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-size: 15px;
+    font-weight: 600;
+    letter-spacing: -0.5px;
+  }
+
+  header h1 {
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--text);
+  }
+
+  header span {
+    color: var(--text-muted);
+    font-size: 13px;
+    font-weight: 400;
+  }
+
+  .container {
+    max-width: 780px;
+    margin: 0 auto;
+    padding: 2rem 1.5rem 4rem;
+  }
+
+  .intro {
+    margin-bottom: 2rem;
+  }
+
+  .intro h2 {
+    font-size: 22px;
+    font-weight: 600;
+    margin-bottom: 6px;
+    color: var(--text);
+  }
+
+  .intro p {
+    color: var(--text-muted);
+    font-size: 14px;
+  }
+
+  .drop-zone {
+    border: 2px dashed var(--border-strong);
+    border-radius: var(--radius);
+    padding: 3rem 2rem;
+    text-align: center;
+    cursor: pointer;
+    background: var(--white);
+    transition: all 0.15s ease;
+    margin-bottom: 1.5rem;
+  }
+
+  .drop-zone:hover,
+  .drop-zone.drag-over {
+    border-color: var(--zephyr);
+    background: var(--zephyr-light);
+  }
+
+  .drop-icon {
+    width: 48px;
+    height: 48px;
+    background: var(--bg);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin: 0 auto 14px;
+    font-size: 22px;
+  }
+
+  .drop-zone h3 {
+    font-size: 15px;
+    font-weight: 600;
+    margin-bottom: 4px;
+  }
+
+  .drop-zone p {
+    font-size: 13px;
+    color: var(--text-muted);
+  }
+
+  .drop-zone p strong { color: var(--zephyr); }
+
+  input[type="file"] { display: none; }
+
+  .file-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 1.5rem;
+  }
+
+  .file-chip {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    padding: 10px 14px;
+    font-size: 14px;
+  }
+
+  .file-chip .file-name {
+    flex: 1;
+    font-weight: 500;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  .file-chip .file-size {
+    font-size: 12px;
+    color: var(--text-light);
+    font-family: 'DM Mono', monospace;
+    flex-shrink: 0;
+  }
+
+  .remove-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    color: var(--text-light);
+    font-size: 16px;
+    padding: 0 2px;
+    line-height: 1;
+    flex-shrink: 0;
+  }
+
+  .remove-btn:hover { color: var(--danger); }
+
+  .analyse-btn {
+    width: 100%;
+    padding: 13px;
+    background: var(--zephyr);
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    font-size: 15px;
+    font-weight: 600;
+    font-family: 'DM Sans', sans-serif;
+    cursor: pointer;
+    transition: background 0.15s;
+    margin-bottom: 2.5rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 8px;
+  }
+
+  .analyse-btn:hover { background: var(--zephyr-mid); }
+  .analyse-btn:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  .results { display: flex; flex-direction: column; gap: 1.5rem; }
+
+  .result-card {
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius);
+    overflow: hidden;
+  }
+
+  .result-header {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+  }
+
+  .result-header h3 { font-size: 15px; font-weight: 600; margin-bottom: 2px; }
+  .result-header .school-meta { font-size: 13px; color: var(--text-muted); }
+
+  .result-header .processing {
+    font-size: 13px;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    flex-shrink: 0;
+  }
+
+  .spinner {
+    width: 14px;
+    height: 14px;
+    border: 2px solid var(--border);
+    border-top-color: var(--zephyr);
+    border-radius: 50%;
+    animation: spin 0.6s linear infinite;
+    flex-shrink: 0;
+  }
+
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .totals-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    border-bottom: 1px solid var(--border);
+  }
+
+  .total-cell {
+    padding: 16px 20px;
+    border-right: 1px solid var(--border);
+  }
+
+  .total-cell:last-child { border-right: none; }
+
+  .tc-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    margin-bottom: 6px;
+    color: var(--text-muted);
+  }
+
+  .tc-amount {
+    font-size: 24px;
+    font-weight: 600;
+    font-family: 'DM Mono', monospace;
+    letter-spacing: -0.5px;
+  }
+
+  .tc-sub { font-size: 11px; color: var(--text-light); margin-top: 2px; }
+
+  .texts-cell .tc-amount { color: var(--texts-color); }
+  .stat-cell .tc-amount { color: var(--stat-color); }
+
+  .section {
+    padding: 16px 20px;
+    border-bottom: 1px solid var(--border);
+  }
+
+  .section:last-child { border-bottom: none; }
+
+  .section-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 10px;
+  }
+
+  .section-label {
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    display: flex;
+    align-items: center;
+    gap: 6px;
+  }
+
+  .badge {
+    display: inline-flex;
+    align-items: center;
+    font-size: 11px;
+    font-weight: 500;
+    padding: 2px 7px;
+    border-radius: 20px;
+  }
+
+  .badge-texts { background: var(--texts-bg); color: var(--texts-color); }
+  .badge-stat { background: var(--stat-bg); color: var(--stat-color); }
+  .badge-excl { background: var(--excl-bg); color: var(--excl-color); }
+
+  .section-total {
+    font-size: 13px;
+    font-weight: 600;
+    font-family: 'DM Mono', monospace;
+    color: var(--text-muted);
+  }
+
+  .item-row {
+    display: flex;
+    justify-content: space-between;
+    align-items: baseline;
+    padding: 6px 0;
+    border-bottom: 1px solid var(--bg);
+    gap: 16px;
+    font-size: 13.5px;
+  }
+
+  .item-row:last-child { border-bottom: none; }
+  .item-desc { flex: 1; color: var(--text); line-height: 1.4; }
+
+  .item-price {
+    font-family: 'DM Mono', monospace;
+    font-size: 13px;
+    font-weight: 500;
+    white-space: nowrap;
+    flex-shrink: 0;
+  }
+
+  .excluded-section .item-desc { color: var(--text-muted); text-decoration: line-through; }
+  .excluded-section .item-price { color: var(--text-light); text-decoration: line-through; }
+
+  .none-note { font-size: 13px; color: var(--text-light); font-style: italic; }
+
+  .error-state {
+    padding: 16px 20px;
+    font-size: 13px;
+    color: var(--danger);
+    display: flex;
+    align-items: flex-start;
+    gap: 8px;
+  }
+
+  .disclaimer {
+    margin-top: 2.5rem;
+    padding: 14px 18px;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: var(--radius-sm);
+    font-size: 12.5px;
+    color: var(--text-muted);
+    line-height: 1.6;
+  }
+
+  .disclaimer strong { color: var(--text); }
+
+  @media (max-width: 500px) {
+    .totals-grid { grid-template-columns: 1fr; }
+    .total-cell { border-right: none; border-bottom: 1px solid var(--border); }
+    .total-cell:last-child { border-bottom: none; }
+    .container { padding: 1.5rem 1rem 3rem; }
+  }
+</style>
+</head>
+<body>
+
+<header>
+  <div class="logo-mark">Z</div>
+  <h1>Zephyr Education <span>/ Booklist Reader</span></h1>
+</header>
+
+<div class="container">
+
+  <div class="intro">
+    <h2>Booklist analyser</h2>
+    <p>Upload one or more Campion booklist PDFs. Voluntary contributions are excluded automatically, with separate totals for texts and stationery.</p>
+  </div>
+
+  <div class="drop-zone" id="dropZone">
+    <div class="drop-icon">📄</div>
+    <h3>Drop booklist PDFs here</h3>
+    <p>or <strong>click to browse</strong> &mdash; multiple files supported</p>
+    <input type="file" id="fileInput" multiple accept=".pdf">
+  </div>
+
+  <div class="file-list" id="fileList"></div>
+
+  <button class="analyse-btn" id="analyseBtn" disabled>
+    <span id="btnText">Analyse booklists</span>
+  </button>
+
+  <div class="results" id="results"></div>
+
+  <div class="disclaimer" id="disclaimer" style="display:none;">
+    <strong>Note:</strong> Totals are based on the booklist prices and exclude voluntary contributions, school levies, and P&amp;C fundraising items. Classification of items (texts vs stationery) should be reviewed &mdash; some items may need manual reassignment depending on Zephyr's approval criteria.
+  </div>
+
+</div>
+
+<script>
+const files = [];
+const dropZone = document.getElementById('dropZone');
+const fileInput = document.getElementById('fileInput');
+const fileListEl = document.getElementById('fileList');
+const analyseBtn = document.getElementById('analyseBtn');
+const resultsEl = document.getElementById('results');
+const disclaimer = document.getElementById('disclaimer');
+const btnText = document.getElementById('btnText');
+
+dropZone.addEventListener('click', () => fileInput.click());
+dropZone.addEventListener('dragover', e => { e.preventDefault(); dropZone.classList.add('drag-over'); });
+dropZone.addEventListener('dragleave', () => dropZone.classList.remove('drag-over'));
+dropZone.addEventListener('drop', e => {
+  e.preventDefault();
+  dropZone.classList.remove('drag-over');
+  addFiles([...e.dataTransfer.files]);
+});
+fileInput.addEventListener('change', () => { addFiles([...fileInput.files]); fileInput.value = ''; });
+
+function addFiles(newFiles) {
+  newFiles
+    .filter(f => f.name.toLowerCase().endsWith('.pdf'))
+    .forEach(f => { if (!files.find(x => x.name === f.name)) files.push(f); });
+  renderFileList();
+}
+
+function formatBytes(bytes) {
+  if (bytes < 1024) return bytes + ' B';
+  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(0) + ' KB';
+  return (bytes / (1024 * 1024)).toFixed(1) + ' MB';
+}
+
+function escHtml(str) {
+  return String(str)
+    .replace(/&/g, '&amp;')
+    .replace(/</g, '&lt;')
+    .replace(/>/g, '&gt;')
+    .replace(/"/g, '&quot;');
+}
+
+function fmt(n) { return '$' + Number(n || 0).toFixed(2); }
+
+function renderFileList() {
+  fileListEl.innerHTML = files.map((f, i) => `
+    <div class="file-chip">
+      <span>📄</span>
+      <span class="file-name">${escHtml(f.name)}</span>
+      <span class="file-size">${formatBytes(f.size)}</span>
+      <button class="remove-btn" onclick="removeFile(${i})" title="Remove">&#x2715;</button>
+    </div>
+  `).join('');
+  analyseBtn.disabled = files.length === 0;
+}
+
+function removeFile(i) { files.splice(i, 1); renderFileList(); }
+
+function toBase64(file) {
+  return new Promise((res, rej) => {
+    const r = new FileReader();
+    r.onload = () => res(r.result.split(',')[1]);
+    r.onerror = rej;
+    r.readAsDataURL(file);
+  });
+}
+
+analyseBtn.addEventListener('click', async () => {
+  analyseBtn.disabled = true;
+  btnText.textContent = 'Analysing...';
+  resultsEl.innerHTML = '';
+  disclaimer.style.display = 'none';
+
+  const cards = files.map(file => {
+    const card = document.createElement('div');
+    card.className = 'result-card';
+    card.innerHTML = `
+      <div class="result-header">
+        <div>
+          <h3>${escHtml(file.name)}</h3>
+          <div class="school-meta">Reading booklist...</div>
+        </div>
+        <div class="processing"><div class="spinner"></div> Analysing</div>
+      </div>`;
+    resultsEl.appendChild(card);
+    return { file, card };
+  });
+
+  let anySuccess = false;
+
+  for (const { file, card } of cards) {
+    try {
+      const b64 = await toBase64(file);
+
+      const response = await fetch('/api/analyse', {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          model: 'claude-sonnet-4-20250514',
+          max_tokens: 1000,
+          system: `You analyse school booklists from Campion Education and similar suppliers. Extract every line item that has a price and classify it as:
+
+- "text": textbooks, novels, readers, digital access codes, workbooks with academic content, music books
+- "stationery": pens, pencils, exercise books, display books, graph books, folders, binders, scissors, glue, rulers, erasers, sharpeners, highlighters, markers, correction tape, USB drives, headphones, earphones, calculators, memory cards, art supplies, visual art diaries, whiteboard markers, clipfolders, document wallets, scrapbooks, library bags — anything that is a physical supply item
+- "excluded": voluntary contributions, school contributions, P&C contributions, fundraising items, levies — anything with words like "voluntary", "contribution", "levy", "fundraising", "P&C", "donation" in the description
+
+Use the TOTAL AMOUNT (last price column) for each item, not the unit price.
+If an item has a "Choose One" option (like left/right handed scissors), include only the first option listed.
+Do not include items in "Parents to Supply" sections with no price.
+Do not include cross-references to other sections with no price.
+Do not include postage or delivery charges.
+
+Return ONLY valid JSON with no markdown, no code fences, no preamble:
+{
+  "school": "Full school name",
+  "year": "Year level e.g. Year 8",
+  "texts": [{"desc": "Description", "amount": 12.50}],
+  "stationery": [{"desc": "Description", "amount": 3.99}],
+  "excluded": [{"desc": "Description", "amount": 60.00}],
+  "texts_total": 0.00,
+  "stationery_total": 0.00,
+  "excluded_total": 0.00
+}`,
+          messages: [{
+            role: 'user',
+            content: [
+              { type: 'document', source: { type: 'base64', media_type: 'application/pdf', data: b64 } },
+              { type: 'text', text: 'Extract and classify all priced line items from this booklist.' }
+            ]
+          }]
+        })
+      });
+
+      const data = await response.json();
+      if (data.error) throw new Error(data.error.message || 'API error');
+
+      const raw = (data.content || []).map(b => b.text || '').join('');
+      const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim());
+      renderSuccess(card, file.name, parsed);
+      anySuccess = true;
+
+    } catch (err) {
+      renderError(card, file.name, err.message);
+    }
+  }
+
+  if (anySuccess) disclaimer.style.display = 'block';
+  analyseBtn.disabled = false;
+  btnText.textContent = 'Analyse booklists';
+});
+
+function renderSuccess(card, filename, d) {
+  const payable = (d.texts_total || 0) + (d.stationery_total || 0);
+
+  const itemRows = items => items && items.length
+    ? items.map(i => `<div class="item-row"><span class="item-desc">${escHtml(i.desc)}</span><span class="item-price">${fmt(i.amount)}</span></div>`).join('')
+    : '<p class="none-note">None identified</p>';
+
+  const exclSection = d.excluded && d.excluded.length ? `
+    <div class="section excluded-section">
+      <div class="section-header">
+        <div class="section-label"><span class="badge badge-excl">Excluded</span> Voluntary contributions &amp; levies</div>
+        <span class="section-total">${fmt(d.excluded_total)}</span>
+      </div>
+      ${itemRows(d.excluded)}
+    </div>` : '';
+
+  card.innerHTML = `
+    <div class="result-header">
+      <div>
+        <h3>${escHtml(d.school || filename)}</h3>
+        <div class="school-meta">${escHtml(d.year || '')}</div>
+      </div>
+    </div>
+    <div class="totals-grid">
+      <div class="total-cell texts-cell">
+        <div class="tc-label">Texts</div>
+        <div class="tc-amount">${fmt(d.texts_total)}</div>
+        <div class="tc-sub">${(d.texts || []).length} item${(d.texts || []).length !== 1 ? 's' : ''}</div>
+      </div>
+      <div class="total-cell stat-cell">
+        <div class="tc-label">Stationery</div>
+        <div class="tc-amount">${fmt(d.stationery_total)}</div>
+        <div class="tc-sub">${(d.stationery || []).length} item${(d.stationery || []).length !== 1 ? 's' : ''}</div>
+      </div>
+      <div class="total-cell payable-cell">
+        <div class="tc-label">Payable total</div>
+        <div class="tc-amount">${fmt(payable)}</div>
+        <div class="tc-sub">excl. contributions</div>
+      </div>
+    </div>
+    ${exclSection}
+    <div class="section">
+      <div class="section-header">
+        <div class="section-label"><span class="badge badge-texts">Texts</span> Books &amp; digital resources</div>
+        <span class="section-total">${fmt(d.texts_total)}</span>
+      </div>
+      ${itemRows(d.texts)}
+    </div>
+    <div class="section">
+      <div class="section-header">
+        <div class="section-label"><span class="badge badge-stat">Stationery</span> Supplies &amp; equipment</div>
+        <span class="section-total">${fmt(d.stationery_total)}</span>
+      </div>
+      ${itemRows(d.stationery)}
+    </div>`;
+}
+
+function renderError(card, filename, msg) {
+  card.innerHTML = `
+    <div class="result-header">
+      <div>
+        <h3>${escHtml(filename)}</h3>
+        <div class="school-meta">Could not read this file</div>
+      </div>
+    </div>
+    <div class="error-state">
+      &#9888; Unable to analyse this PDF. Make sure it is a text-based booklist PDF (not a scanned image).${msg ? ' ' + escHtml(msg) : ''}
+    </div>`;
+}
+</script>
+</body>
+</html>
