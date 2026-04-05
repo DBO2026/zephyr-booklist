@@ -27,7 +27,7 @@ export default async function handler(req, res) {
       body: JSON.stringify(req.body)
     });
 
-    const data = await response.json();
+    const data = await response.json(); console.log('Anthropic status:', response.status); console.log('Org ID:', response.headers.get('anthropic-organization-id')); console.log('Response:', JSON.stringify(data)); return res.status(response.status).json(data);
     return res.status(response.status).json(data);
 
   } catch (err) {
