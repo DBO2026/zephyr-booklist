@@ -557,7 +557,7 @@ Return ONLY valid JSON with no markdown, no code fences, no preamble:
       });
 
       const data = await response.json();
-      if (data.error) throw new Error(data.error.message || 'API error');
+      if (data.error) throw new Error(JSON.stringify(data.error) || 'API error');
 
       const raw = (data.content || []).map(b => b.text || '').join('');
       const parsed = JSON.parse(raw.replace(/```json|```/g, '').trim());
